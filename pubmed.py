@@ -1,34 +1,20 @@
 import requests
 from bs4 import BeautifulSoup
 import os
-import base64
-from github import Github
 import google.generativeai as genai
 
 # Chamando variáveis secretas
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
-REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
 FILE_PATH = "conteudo/index.html"
 
 # Configuração da chave da API GenAI
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# Função para buscar o conteúdo do arquivo no GitHub
-def buscar_conteudo_arquivo(repo, file_path):
-    file_content = repo.get_contents(file_path)
-    return base64.b64decode(file_content.content).decode("utf-8"), file_content.sha
-
-# Função para atualizar o conteúdo do arquivo no GitHub
-def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
-    repo.update_file(file_path, mensagem_commit, conteudo, sha)
-
 # Função para publicar o artigo no site
 def publicar_artigo(titulo, abstract, url_artigo):
-    g = Github(GITHUB_TOKEN)
-    repo = g.get_repo(REPO_NAME)
-    
-    # Busca o conteúdo atual do arquivo index.html
-    conteudo_atual, sha = buscar_conteudo_arquivo(repo, FILE_PATH)
+    # Leitura do conteúdo atual do index.html
+    with open(FILE_PATH, "r", encoding="utf-8") as file:
+        conteudo_atual = file.read()
 
     # Cria um objeto BeautifulSoup
     soup = BeautifulSoup(conteudo_atual, "html.parser")
@@ -62,10 +48,11 @@ def publicar_artigo(titulo, abstract, url_artigo):
     # Atualiza o conteúdo do arquivo
     conteudo_atualizado = str(soup)
 
-    # Atualiza o arquivo no GitHub
-    atualizar_arquivo_github(repo, FILE_PATH, conteudo_atualizado, sha, "Adicionando novo artigo")
+    # Escrever o conteúdo atualizado de volta no index.html
+    with open(FILE_PATH, "w", encoding="utf-8") as file:
+        file.write(conteudo_atualizado)
 
-    print("Artigo publicado no site com sucesso!")
+    print("Artigo publicado no index.html com sucesso!")
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
@@ -124,4 +111,4 @@ if url_artigo_pubmed:
     else:
         print("Não foi possível extrair informações do artigo.")
 else:
-        print("Nenhum artigo encontrado para os termos de pesquisa fornecidos.")
+    print("Nenhum artigo encontrado para os termos de pesquisa fornecidos.")
