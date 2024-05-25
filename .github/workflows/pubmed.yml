@@ -39,6 +39,7 @@ jobs:
       - name: Executar script Python para encontrar artigo e postar no site
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
           python pubmed.py
 
