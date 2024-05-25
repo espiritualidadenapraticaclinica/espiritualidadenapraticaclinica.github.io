@@ -1,8 +1,6 @@
 name: Pubmed
 
-on:
-  push
-  workflow_dispatch
+on: push
 
 jobs:
   publish_article:
@@ -46,7 +44,7 @@ jobs:
         run: |
           git config --global user.email "github-actions@example.com"
           git config --global user.name "GitHub Actions"
-          git add conteudo/index.html
           git add legenda.txt
+          git add conteudo/index.html
           git commit -m "Atualizar index.html e arquivo de legenda com novo artigo [skip ci]"  # Ignorar a execução do workflow para este commit
           git push
