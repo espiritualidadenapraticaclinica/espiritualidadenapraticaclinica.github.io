@@ -15,8 +15,6 @@ FILE_PATH = "conteudo/index.html"
 # Configuração da chave da API GenAI
 genai.configure(api_key=GOOGLE_API_KEY)
 
-import base64
-import os
 
 # Função para descriptografar o conteúdo do arquivo
 def descriptografar_conteudo(conteudo_criptografado):
@@ -30,8 +28,8 @@ def buscar_conteudo_arquivo(repo, file_path):
     sha = file_content.sha
     
     # Descriptografa o conteúdo, se necessário
-    if conteudo.startswith("ENCRYPTED:"):
-        conteudo = descriptografar_conteudo(conteudo[10:])  # Remove o prefixo "ENCRYPTED:"
+    if conteudo.startswith(b"ENCRYPTED:"):
+        conteudo = descriptografar_conteudo(conteudo[len("ENCRYPTED:"):])
     
     return conteudo, sha
 
