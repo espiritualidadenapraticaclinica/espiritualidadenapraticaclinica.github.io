@@ -43,13 +43,11 @@ def buscar_conteudo_arquivo(repo, file_path):
 
 # Função para atualizar o conteúdo do arquivo no GitHub
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
-    # Decodificar o conteúdo, se necessário
-    conteudo_decodificado = conteudo.decode('utf-8')
-
     # Usando a API do GitHub para fazer upload do arquivo
-    repo.update_file(file_path, mensagem_commit, conteudo_decodificado, sha)
+    repo.update_file(file_path, mensagem_commit, conteudo, sha)
 
     print("Arquivo atualizado no GitHub com sucesso!")
+
 
 
 # Função para extrair informações do artigo do PubMed
