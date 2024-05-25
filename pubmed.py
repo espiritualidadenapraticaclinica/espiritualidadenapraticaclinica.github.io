@@ -6,7 +6,7 @@ import google.generativeai as genai
 
 # Chamando variáveis secretas
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+GITHUB_TOKEN = os.environ["TOKEN_GITHUB"]
 REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
 FILE_PATH = "conteudo/index.html"
 
