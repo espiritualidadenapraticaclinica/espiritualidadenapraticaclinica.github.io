@@ -1,31 +1,37 @@
 import requests
 from bs4 import BeautifulSoup
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-import time
 import os
-import google.generativeai as genai
-
-
+import base64
+from github import Github
 
 # Chamando variáveis secretas
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
+GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
+REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
+FILE_PATH = "conteudo/index.html"
 
 # Configuração da chave da API GenAI
 genai.configure(api_key=GOOGLE_API_KEY)
 
-# Função para publicar o artigo no site
+# Função para buscar o conteúdo do arquivo no GitHub
+def buscar_conteudo_arquivo(repo, file_path):
+    file_content = repo.get_contents(file_path)
+    return base64.b64decode(file_content.content).decode("utf-8"), file_content.sha
+
+# Função para atualizar o conteúdo do arquivo no GitHub
+def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
+    repo.update_file(file_path, mensagem_commit, conteudo, sha)
+
 # Função para publicar o artigo no site
 def publicar_artigo(titulo, abstract, url_artigo):
-    # Caminho para o arquivo index.html
-    index_file_path = "https://github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io/blob/main/conteudo/index.html"
-
-    # Lê o conteúdo atual do arquivo index.html
-    with open(index_file_path, "r", encoding="utf-8") as file:
-        html_content = file.read()
+    g = Github(GITHUB_TOKEN)
+    repo = g.get_repo(REPO_NAME)
+    
+    # Busca o conteúdo atual do arquivo index.html
+    conteudo_atual, sha = buscar_conteudo_arquivo(repo, FILE_PATH)
 
     # Cria um objeto BeautifulSoup
-    soup = BeautifulSoup(html_content, "html.parser")
+    soup = BeautifulSoup(conteudo_atual, "html.parser")
 
     # Cria um novo elemento de artigo
     new_article = soup.new_tag("article")
@@ -41,19 +47,25 @@ def publicar_artigo(titulo, abstract, url_artigo):
 
     # Cria o conteúdo do artigo
     content = soup.new_tag("div", class_="entry-content")
-    content.append(abstract)
+    abstract_tag = soup.new_tag("p")
+    abstract_tag.string = abstract
+    content.append(abstract_tag)
     new_article.append(content)
 
     # Insere o novo artigo no início da lista de artigos
     main_content = soup.find("main", id="main")
-    main_content.insert(0, new_article)
+    if main_content:
+        main_content.insert(0, new_article)
+    else:
+        print("Erro: não foi possível encontrar a seção principal no arquivo HTML.")
 
-    # Escreve o conteúdo atualizado de volta para o arquivo index.html
-    with open(index_file_path, "w", encoding="utf-8") as file:
-        file.write(str(soup))
+    # Atualiza o conteúdo do arquivo
+    conteudo_atualizado = str(soup)
+
+    # Atualiza o arquivo no GitHub
+    atualizar_arquivo_github(repo, FILE_PATH, conteudo_atualizado, sha, "Adicionando novo artigo")
 
     print("Artigo publicado no site com sucesso!")
-
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
@@ -112,4 +124,4 @@ if url_artigo_pubmed:
     else:
         print("Não foi possível extrair informações do artigo.")
 else:
-    print("Nenhum artigo encontrado para os termos de pesquisa fornecidos.")
+        print("Nenhum artigo encontrado para os termos de pesquisa fornecidos.")
