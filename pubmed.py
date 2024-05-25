@@ -24,15 +24,14 @@ def descriptografar_conteudo(conteudo_criptografado):
 # Função para buscar o conteúdo do arquivo no GitHub
 def buscar_conteudo_arquivo(repo, file_path):
     file_content = repo.get_contents(file_path)
-    conteudo_bytes = file_content.content
-    conteudo = conteudo_bytes.decode('utf-8')  # Decodifica o conteúdo para string
-    sha = file_content.sha
+    conteudo = file_content.content
     
     # Verifica se o conteúdo está criptografado
-    if conteudo.startswith("ENCRYPTED:"):  # Agora passamos uma string para o startswith
-        conteudo = descriptografar_conteudo(conteudo[len("ENCRYPTED:"):])
+    if isinstance(conteudo, bytes) and conteudo.startswith(b"ENCRYPTED:"):
+        conteudo = descriptografar_conteudo(conteudo[len(b"ENCRYPTED:"):])
     
-    return conteudo, sha
+    return conteudo, file_content.sha
+
     
 # Função para atualizar o conteúdo do arquivo no GitHub
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
