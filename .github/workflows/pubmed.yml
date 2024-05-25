@@ -1,21 +1,22 @@
 name: Pubmed
 
-on: push
-
+on:
+  push
+  workflow_dispatch
 
 jobs:
   publish_article:
     name: Publicar Artigo no Site
-    
+
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout do código
         uses: actions/checkout@v2
-        
+
       - name: Manter o fluxo de trabalho ativo
         uses: entepotenz/keep-github-actions-alive-min-dependencies@v1
-     
+
       - name: Configurar o ambiente Python
         uses: actions/setup-python@v2
         with:
@@ -34,19 +35,18 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install pygithub  # Certifique-se de que o PyGithub está instalado
 
       - name: Executar script Python para encontrar artigo e postar no site
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Adiciona o token do GitHub aos segredos
         run: |
           python pubmed.py
 
-      - name: Atualizar arquivo de legenda
+      - name: Commit e push das mudanças no index.html
         run: |
           git config --global user.email "github-actions@example.com"
           git config --global user.name "GitHub Actions"
+          git add conteudo/index.html
           git add legenda.txt
-          git commit -m "Atualizar arquivo de legenda [skip ci]"  # Ignorar a execução do workflow para este commit
+          git commit -m "Atualizar index.html e arquivo de legenda com novo artigo [skip ci]"  # Ignorar a execução do workflow para este commit
           git push
