@@ -3,10 +3,10 @@ from bs4 import BeautifulSoup
 import os
 import base64
 from github import Github
+import google.generativeai as genai
 
 # Chamando variáveis secretas
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
-GITHUB_TOKEN = os.environ["GITHUB_TOKEN"]
 REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
 FILE_PATH = "conteudo/index.html"
 
