@@ -4,11 +4,11 @@
     <engineLink>https://wordpress.org/</engineLink>
     <homePageLink>http://espiritualidadenaclinica.com.br</homePageLink>
     <apis>
-      <api name="WordPress" blogID="1" preferred="true" apiLink="http://espiritualidadenaclinica.com.br/xmlrpc.php" />
-      <api name="Movable Type" blogID="1" preferred="false" apiLink="http://espiritualidadenaclinica.com.br/xmlrpc.php" />
-      <api name="MetaWeblog" blogID="1" preferred="false" apiLink="http://espiritualidadenaclinica.com.br/xmlrpc.php" />
-      <api name="Blogger" blogID="1" preferred="false" apiLink="http://espiritualidadenaclinica.com.br/xmlrpc.php" />
-      	<api name="WP-API" blogID="1" preferred="false" apiLink="http://espiritualidadenaclinica.com.br/wp-json/" />
+      <api name="WordPress" blogID="1" preferred="true" apiLink="https://espiritualidadenapraticaclinica.github.io/xmlrpc.php" />
+      <api name="Movable Type" blogID="1" preferred="false" apiLink="https://espiritualidadenapraticaclinica.github.io/xmlrpc.php" />
+      <api name="MetaWeblog" blogID="1" preferred="false" apiLink="https://espiritualidadenapraticaclinica.github.io/xmlrpc.php" />
+      <api name="Blogger" blogID="1" preferred="false" apiLink="https://espiritualidadenapraticaclinica.github.io/xmlrpc.php" />
+      	<api name="WP-API" blogID="1" preferred="false" apiLink="https://espiritualidadenapraticaclinica.github.io/wp-json/" />
 	    </apis>
   </service>
 </rsd>
