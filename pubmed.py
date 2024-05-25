@@ -26,18 +26,21 @@ def buscar_conteudo_arquivo(repo, file_path):
     file_content = repo.get_contents(file_path)
     conteudo_bytes = file_content.content
     
+    # Decodifica o conteúdo em Base64, se necessário
+    try:
+        conteudo_bytes = base64.b64decode(conteudo_bytes)
+    except base64.binascii.Error:
+        pass  # O conteúdo não está codificado em Base64
+
     # Verifica se o conteúdo está criptografado
     if isinstance(conteudo_bytes, bytes) and conteudo_bytes.startswith(b"ENCRYPTED:"):
         conteudo_bytes = descriptografar_conteudo(conteudo_bytes[len(b"ENCRYPTED:"):])
-
-    # Decodifica o conteúdo em Base64, se necessário
-    if conteudo_bytes.startswith(b"Vm0w"):
-        conteudo_bytes = base64.b64decode(conteudo_bytes)
 
     # Decodifica o conteúdo para string
     conteudo = conteudo_bytes.decode('utf-8') if isinstance(conteudo_bytes, bytes) else conteudo_bytes
     
     return conteudo, file_content.sha
+
 
     
 # Função para atualizar o conteúdo do arquivo no GitHub
