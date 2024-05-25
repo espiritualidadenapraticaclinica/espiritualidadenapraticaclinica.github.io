@@ -20,7 +20,7 @@ def buscar_conteudo_arquivo(repo, file_path):
 
 # Função para atualizar o conteúdo do arquivo no GitHub
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
-    repo.update_file(file_path, mensagem_commit, conteudo, sha)
+    repo.update_file(file_path, mensagem_commit, conteudo, sha, branch="main", encode_content=False)
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
@@ -77,7 +77,7 @@ def publicar_artigo(titulo, abstract, url_artigo):
     # Atualiza o conteúdo do arquivo
     conteudo_atualizado = str(soup)
 
-    # Atualiza o arquivo no GitHub
+    # Atualiza o arquivo no GitHub sem criptografia
     atualizar_arquivo_github(repo, FILE_PATH, conteudo_atualizado, sha, "Adicionando novo artigo")
 
     print("Artigo publicado no site com sucesso!")
