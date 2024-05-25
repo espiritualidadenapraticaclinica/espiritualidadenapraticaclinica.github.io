@@ -15,25 +15,45 @@ GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
 genai.configure(api_key=GOOGLE_API_KEY)
 
 # Função para publicar o artigo no site
+# Função para publicar o artigo no site
 def publicar_artigo(titulo, abstract, url_artigo):
-    # URL da página de conteúdo do seu site
-    SITE_URL = "https://espiritualidadenapraticaclinica.github.io/conteudo/"
+    # Caminho para o arquivo index.html
+    index_file_path = "espiritualidadenapraticaclinica.github.io/conteudo/index.html"
 
-    # Dados a serem enviados para a página do site
-    data = {
-        'titulo': titulo,
-        'abstract': abstract,
-        'url_artigo': url_artigo
-    }
-    
-    # Fazendo uma requisição POST para publicar o artigo
-    response = requests.post(SITE_URL, data=data)
-    
-    # Verifica se a requisição foi bem sucedida
-    if response.status_code == 200:
-        print("Artigo publicado no site com sucesso!")
-    else:
-        print(f"Falha ao publicar o artigo. Status code: {response.status_code}")
+    # Lê o conteúdo atual do arquivo index.html
+    with open(index_file_path, "r", encoding="utf-8") as file:
+        html_content = file.read()
+
+    # Cria um objeto BeautifulSoup
+    soup = BeautifulSoup(html_content, "html.parser")
+
+    # Cria um novo elemento de artigo
+    new_article = soup.new_tag("article")
+    new_article["id"] = "post-new"
+    new_article["class"] = "post-new page type-page status-publish hentry"
+
+    # Cria o cabeçalho do artigo
+    header = soup.new_tag("header", class_="entry-header")
+    title_tag = soup.new_tag("h1", class_="entry-title")
+    title_tag.string = titulo
+    header.append(title_tag)
+    new_article.append(header)
+
+    # Cria o conteúdo do artigo
+    content = soup.new_tag("div", class_="entry-content")
+    content.append(abstract)
+    new_article.append(content)
+
+    # Insere o novo artigo no início da lista de artigos
+    main_content = soup.find("main", id="main")
+    main_content.insert(0, new_article)
+
+    # Escreve o conteúdo atualizado de volta para o arquivo index.html
+    with open(index_file_path, "w", encoding="utf-8") as file:
+        file.write(str(soup))
+
+    print("Artigo publicado no site com sucesso!")
+
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
