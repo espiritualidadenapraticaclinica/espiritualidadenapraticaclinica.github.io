@@ -22,6 +22,21 @@ def buscar_conteudo_arquivo(repo, file_path):
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
     repo.update_file(file_path, mensagem_commit, conteudo, sha)
 
+# Função para extrair informações do artigo do PubMed
+def extrair_artigo_pubmed(termo_pesquisa):
+    url = 'https://pubmed.ncbi.nlm.nih.gov/'
+    params = {'term': termo_pesquisa, 'sort': 'date'}
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+    response = requests.get(url, params=params, headers=headers)
+
+    if response.status_code == 200:
+        soup = BeautifulSoup(response.text, 'html.parser')
+        link_ultimo_artigo = soup.find('a', class_='docsum-title')['href']
+        return 'https://pubmed.ncbi.nlm.nih.gov' + link_ultimo_artigo
+    else:
+        print(f'Erro na pesquisa PubMed: {response.status_code}')
+        return None
+
 # Função para publicar o artigo no site
 def publicar_artigo(titulo, abstract, url_artigo):
     g = Github(GITHUB_TOKEN)
@@ -66,6 +81,18 @@ def publicar_artigo(titulo, abstract, url_artigo):
     atualizar_arquivo_github(repo, FILE_PATH, conteudo_atualizado, sha, "Adicionando novo artigo")
 
     print("Artigo publicado no site com sucesso!")
+
+# Função para extrair informações do artigo
+def extrair_informacoes_artigo(url_artigo):
+    response_artigo = requests.get(url_artigo)
+    if response_artigo.status_code == 200:
+        soup_artigo = BeautifulSoup(response_artigo.text, 'html.parser')
+        titulo = soup_artigo.find('h1', class_='heading-title').text.strip()
+        abstract = soup_artigo.find('div', class_='abstract-content').text.strip()
+        return titulo, abstract
+    else:
+        print(f'Erro ao acessar o artigo: {response_artigo.status_code}')
+        return None, None
 
 # Função para gerar conteúdo traduzido usando o modelo GenAI
 def gerar_traducao(prompt):
