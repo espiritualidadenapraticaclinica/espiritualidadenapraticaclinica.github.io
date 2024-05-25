@@ -20,7 +20,11 @@ def buscar_conteudo_arquivo(repo, file_path):
 
 # Função para atualizar o conteúdo do arquivo no GitHub
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
-    repo.update_file(file_path, mensagem_commit, conteudo, sha, branch="main", encode_content=False)
+    # Convertendo o conteúdo para bytes em formato UTF-8
+    conteudo_bytes = bytes(conteudo, 'utf-8')
+    
+    # Atualizando o arquivo no GitHub
+    repo.update_file(file_path, mensagem_commit, conteudo_bytes, sha)
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
