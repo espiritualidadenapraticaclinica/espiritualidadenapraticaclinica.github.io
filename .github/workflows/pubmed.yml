@@ -2,9 +2,6 @@ name: Pubmed
 
 on: push
 
- #   schedule:
-
-  #      - cron: '0 10 * * *'
 
 jobs:
   publish_article:
@@ -37,10 +34,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+          pip install pygithub  # Certifique-se de que o PyGithub está instalado
 
       - name: Executar script Python para encontrar artigo e postar no site
         env:
-          GOOGLE_API_KEY:  ${{ secrets.GOOGLE_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Adiciona o token do GitHub aos segredos
         run: |
           python pubmed.py
 
