@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 import os
 from github import Github
 import google.generativeai as genai
+import base64
+
 
 # Chamando variáveis secretas
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
@@ -13,10 +15,25 @@ FILE_PATH = "conteudo/index.html"
 # Configuração da chave da API GenAI
 genai.configure(api_key=GOOGLE_API_KEY)
 
+import base64
+import os
+
+# Função para descriptografar o conteúdo do arquivo
+def descriptografar_conteudo(conteudo_criptografado):
+    conteudo_descriptografado = base64.b64decode(conteudo_criptografado).decode("utf-8")
+    return conteudo_descriptografado
+
 # Função para buscar o conteúdo do arquivo no GitHub
 def buscar_conteudo_arquivo(repo, file_path):
     file_content = repo.get_contents(file_path)
-    return file_content.content, file_content.sha
+    conteudo = file_content.content
+    sha = file_content.sha
+    
+    # Descriptografa o conteúdo, se necessário
+    if conteudo.startswith("ENCRYPTED:"):
+        conteudo = descriptografar_conteudo(conteudo[10:])  # Remove o prefixo "ENCRYPTED:"
+    
+    return conteudo, sha
 
 # Função para atualizar o conteúdo do arquivo no GitHub
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
@@ -55,8 +72,11 @@ def publicar_artigo(titulo, abstract, url_artigo):
     # Busca o conteúdo atual do arquivo index.html
     conteudo_atual, sha = buscar_conteudo_arquivo(repo, FILE_PATH)
 
+    # Descriptografa o conteúdo
+    conteudo_descriptografado = descriptografar_conteudo(conteudo_atual)
+
     # Cria um objeto BeautifulSoup
-    soup = BeautifulSoup(conteudo_atual, "html.parser")
+    soup = BeautifulSoup(conteudo_descriptografado, "html.parser")
 
     # Cria um novo elemento de artigo
     new_article = soup.new_tag("article")
