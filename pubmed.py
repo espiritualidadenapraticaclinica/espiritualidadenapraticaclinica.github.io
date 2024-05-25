@@ -41,21 +41,16 @@ def buscar_conteudo_arquivo(repo, file_path):
     
     return conteudo, file_content.sha
 
-
-    
 # Função para atualizar o conteúdo do arquivo no GitHub
 def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
-    # Gravando o conteúdo em um arquivo temporário
-    with open('arquivo_temp.html', 'w', encoding='utf-8') as f:
-        f.write(conteudo)
+    # Decodificar o conteúdo, se necessário
+    conteudo_decodificado = conteudo.decode('utf-8')
 
     # Usando a API do GitHub para fazer upload do arquivo
-    with open('arquivo_temp.html', 'rb') as f:
-        conteudo_temp = f.read()
-    repo.update_file(file_path, mensagem_commit, conteudo_temp, sha)
+    repo.update_file(file_path, mensagem_commit, conteudo_decodificado, sha)
 
-    # Excluindo o arquivo temporário
-    os.remove('arquivo_temp.html')
+    print("Arquivo atualizado no GitHub com sucesso!")
+
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
