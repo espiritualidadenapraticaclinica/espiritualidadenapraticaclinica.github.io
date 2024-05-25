@@ -73,11 +73,14 @@ def publicar_artigo(titulo, abstract, url_artigo):
     # Busca o conteúdo atual do arquivo index.html
     conteudo_atual, sha = buscar_conteudo_arquivo(repo, FILE_PATH)
 
-    # Descriptografa o conteúdo
-    conteudo_descriptografado = descriptografar_conteudo(conteudo_atual)
-
     # Cria um objeto BeautifulSoup
-    soup = BeautifulSoup(conteudo_descriptografado, "html.parser")
+    soup = BeautifulSoup(conteudo_atual, "html.parser")
+
+    # Verifica se a seção principal existe
+    main_content = soup.find("main", id="main")
+    if not main_content:
+        print("Erro: não foi possível encontrar a seção principal no arquivo HTML.")
+        return
 
     # Cria um novo elemento de artigo
     new_article = soup.new_tag("article")
@@ -99,16 +102,12 @@ def publicar_artigo(titulo, abstract, url_artigo):
     new_article.append(content)
 
     # Insere o novo artigo no início da lista de artigos
-    main_content = soup.find("main", id="main")
-    if main_content:
-        main_content.insert(0, new_article)
-    else:
-        print("Erro: não foi possível encontrar a seção principal no arquivo HTML.")
+    main_content.insert(0, new_article)
 
     # Atualiza o conteúdo do arquivo
     conteudo_atualizado = str(soup)
 
-    # Atualiza o arquivo no GitHub sem criptografia
+    # Atualiza o arquivo no GitHub
     atualizar_arquivo_github(repo, FILE_PATH, conteudo_atualizado, sha, "Adicionando novo artigo")
 
     print("Artigo publicado no site com sucesso!")
