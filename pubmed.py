@@ -25,7 +25,9 @@ def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
         f.write(conteudo)
 
     # Usando a API do GitHub para fazer upload do arquivo
-    repo.update_file(file_path, mensagem_commit, 'arquivo_temp.html', sha)
+    with open('arquivo_temp.html', 'rb') as f:
+        conteudo_temp = f.read()
+    repo.update_file(file_path, mensagem_commit, conteudo_temp, sha)
 
     # Excluindo o arquivo temporário
     os.remove('arquivo_temp.html')
