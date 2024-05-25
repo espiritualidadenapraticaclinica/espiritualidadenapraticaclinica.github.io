@@ -18,7 +18,7 @@ genai.configure(api_key=GOOGLE_API_KEY)
 # Função para publicar o artigo no site
 def publicar_artigo(titulo, abstract, url_artigo):
     # Caminho para o arquivo index.html
-    index_file_path = "espiritualidadenapraticaclinica.github.io/conteudo/index.html"
+    index_file_path = "https://github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io/blob/main/conteudo/index.html"
 
     # Lê o conteúdo atual do arquivo index.html
     with open(index_file_path, "r", encoding="utf-8") as file:
