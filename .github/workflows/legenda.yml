@@ -39,6 +39,6 @@ jobs:
           git config --global user.name "GitHub Actions"
           git add legenda.txt
           git remote rm origin
-          git remote add origin 'git@github.com:espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git'
+          git remote set-url origin https://github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git
           git commit -m "Atualizar arquivo de legenda [skip ci]"  # Ignorar a execução do workflow para este commit
           git push --set-upstream origin main
