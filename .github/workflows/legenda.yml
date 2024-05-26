@@ -29,6 +29,13 @@ jobs:
             ${{ runner.os }}-
 
 
-      - name: Executar script Python para encontrar artigo e postar no site
+      - name: Executar script Python
         run: |
           python legenda_teste.py
+
+      - name: Commit e push legenda.txt
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          git add legenda.txt
+          git push origin HEAD:main
