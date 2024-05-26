@@ -34,12 +34,11 @@ jobs:
           python legenda_teste.py
 
       - name: Commit e push legenda.txt
-        env:
-          USER_EMAIL: ${{ secrets.USER_EMAIL }}
-          USER_NAME: ${{ secrets.USER_NAME }}
         run: |
-          git config --global user.email USER_EMAIL
-          git config --global user.name USER_NAME
+          git config --global user.email "github-actions@example.com"
+          git config --global user.name "GitHub Actions"
           git add legenda.txt
+          git remote rm origin
+          git remote add origin 'git@github.com:espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git'
           git commit -m "Atualizar arquivo de legenda [skip ci]"  # Ignorar a execução do workflow para este commit
           git push
