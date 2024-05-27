@@ -12,6 +12,7 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v2
         with:
+          token: ${{ secrets.TOKEN_GITHUB }}
           persist-credentials: false
 
       - name: Configurar o ambiente Python
@@ -46,5 +47,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
         run: |
-          git remote set-url origin https://github-actions:${{ secrets.GITHUB_TOKEN }}@github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git
+          git remote set-url origin https://x-access-token:${{ secrets.TOKEN_GITHUB }}@github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git
           git push origin main
