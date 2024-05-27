@@ -1,10 +1,10 @@
 name: Pubmed
 
-on: push
+on:
 
-  # schedule:
+   schedule:
 
-  #      - cron: '0 10 * * *'
+        - cron: '0 10 * * *'
 
 jobs:
   publish_article:
