@@ -28,17 +28,26 @@ jobs:
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
 
-
       - name: Executar script Python
         run: |
           python legenda_teste.py
 
-      - name: Commit e push legenda.txt
+      - name: Configurar Git
         run: |
           git config --global user.email "github-actions@example.com"
           git config --global user.name "GitHub Actions"
+      
+      - name: Adicionar e commitar mudanças
+        run: |
           git add legenda.txt
-          git remote rm origin
+          git commit -m "Atualizar arquivo de legenda [skip ci]" || echo "No changes to commit"
+
+      - name: Configurar repositório remoto
+        run: |
           git remote set-url origin https://github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git
-          git commit -m "Atualizar arquivo de legenda [skip ci]"  # Ignorar a execução do workflow para este commit
-          git push --set-upstream origin main
+
+      - name: Push mudanças
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        run: |
+          git push origin main
