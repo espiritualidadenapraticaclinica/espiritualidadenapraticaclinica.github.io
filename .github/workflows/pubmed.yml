@@ -1,13 +1,12 @@
 name: Pubmed
 
-on:
-  schedule:
-    - cron: '0 10 * * *'
+on: push
+ # schedule:
+#    - cron: '0 10 * * *'
 
 jobs:
   publish_article:
     name: Publicar Artigo no Site
-
     runs-on: ubuntu-latest
 
     steps:
@@ -51,6 +50,10 @@ jobs:
           git config --global user.email "github-actions@example.com"
           git config --global user.name "GitHub Actions"
 
+      - name: Stash quaisquer mudanças locais
+        run: |
+          git stash
+
       - name: Atualizar repositório local com remoto
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
@@ -61,6 +64,7 @@ jobs:
 
       - name: Adicionar e commitar mudanças
         run: |
+          git stash pop
           git add legenda.txt
           git add conteudo/index.html
           git commit -m "Atualizar arquivo de legenda e index [skip ci]" || echo "No changes to commit"
