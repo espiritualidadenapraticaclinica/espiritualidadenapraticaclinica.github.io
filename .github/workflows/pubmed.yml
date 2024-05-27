@@ -12,6 +12,7 @@ jobs:
       - name: Checkout do código
         uses: actions/checkout@v2
         with:
+          token: ${{ secrets.TOKEN_GITHUB }}
           persist-credentials: false
 
       - name: Manter o fluxo de trabalho ativo
@@ -43,14 +44,20 @@ jobs:
         run: |
           python pubmed.py
 
-      - name: Commit e push das mudanças no index.html
-        env:
-          TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
+      - name: Configurar Git
         run: |
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions@example.com"
+          git config --global user.name "GitHub Actions"
+
+      - name: Adicionar e commitar mudanças
+        run: |
           git add legenda.txt
           git add conteudo/index.html
-          git commit -m "Atualizar index.html com novo artigo [skip ci]"  # Ignorar a execução do workflow para este commit
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push origin HEAD:main
+          git commit -m "Atualizar arquivo de legenda e index [skip ci]" || echo "No changes to commit"
+
+      - name: Push mudanças
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        run: |
+          git remote set-url origin https://x-access-token:${{ secrets.TOKEN_GITHUB }}@github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git
+          git push origin main
