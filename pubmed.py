@@ -43,7 +43,7 @@ def salvar_nome_artigo(nome_artigo):
 # Função para verificar se o novo artigo é diferente do último
 def verificar_artigo_duplicado(nome_artigo):
     if not os.path.exists(LEGENDA_FILE):
-        return False  # Se legenda.txt não existe, o artigo não é duplicado
+        return False  # If legenda.txt does not exist, the article is not a duplicate
     with open(LEGENDA_FILE, "r") as f:
         ultimo_artigo = f.read().strip()
     return nome_artigo == ultimo_artigo
