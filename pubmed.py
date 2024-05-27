@@ -78,6 +78,13 @@ def extrair_autores(url_artigo):
         print(f'Erro ao acessar o artigo: {response_artigo.status_code}')
         return None
 
+# Função para atualizar o conteúdo do arquivo no GitHub
+def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
+    # Usando a API do GitHub para fazer upload do arquivo
+    repo.update_file(file_path, mensagem_commit, conteudo, sha)
+
+    print("Arquivo atualizado no GitHub com sucesso!")
+
 # Função para publicar o artigo no site
 def publicar_artigo(titulo, autores, url_artigo):
     g = Github(GITHUB_TOKEN)
