@@ -90,6 +90,9 @@ def publicar_artigo(titulo, autores, url_artigo):
 
     # Localiza a seção "ARTIGOS E TESES"
     artigos_teses = main_content.find("strong", string="ARTIGOS E TESES:")
+    if not artigos_teses:
+        print("Erro: não foi possível encontrar a seção 'ARTIGOS E TESES' no arquivo HTML.")
+        return
 
     # Verifica se a seção "ARTIGOS PUBMED" já existe
     artigos_pubmed_section = main_content.find("strong", string="ARTIGOS PUBMED:")
@@ -99,7 +102,7 @@ def publicar_artigo(titulo, autores, url_artigo):
         strong_tag = soup.new_tag("strong")
         strong_tag.string = "ARTIGOS PUBMED:"
         artigos_pubmed_section.append(strong_tag)
-        main_content.insert(main_content.contents.index(artigos_teses.parent), artigos_pubmed_section)
+        artigos_teses.parent.insert_before(artigos_pubmed_section)
 
     # Cria um novo elemento de artigo
     new_article = soup.new_tag("article")
@@ -123,7 +126,7 @@ def publicar_artigo(titulo, autores, url_artigo):
     content.append(link_tag)
     new_article.append(content)
 
-    # Insere o novo artigo na seção "ARTIGOS PUBMED"
+    # Insere o novo artigo após a seção "ARTIGOS PUBMED"
     artigos_pubmed_section.insert_after(new_article)
 
     # Atualiza o conteúdo do arquivo
