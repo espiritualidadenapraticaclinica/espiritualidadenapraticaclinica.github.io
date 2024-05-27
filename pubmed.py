@@ -5,7 +5,6 @@ from github import Github
 import base64
 
 # Chamando variáveis secretas
-GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
 GITHUB_TOKEN = os.environ["TOKEN_GITHUB"]
 REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
 FILE_PATH = "conteudo/index.html"
