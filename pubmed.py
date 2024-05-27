@@ -8,6 +8,7 @@ import base64
 GITHUB_TOKEN = os.environ["TOKEN_GITHUB"]
 REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
 FILE_PATH = "conteudo/index.html"
+LEGENDA_FILE = "legenda.txt"
 
 # Função para descriptografar o conteúdo do arquivo
 def descriptografar_conteudo(conteudo_criptografado):
@@ -34,12 +35,18 @@ def buscar_conteudo_arquivo(repo, file_path):
     
     return conteudo, file_content.sha
 
-# Função para atualizar o conteúdo do arquivo no GitHub
-def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
-    # Usando a API do GitHub para fazer upload do arquivo
-    repo.update_file(file_path, mensagem_commit, conteudo, sha)
+# Função para salvar o nome do artigo em legenda.txt
+def salvar_nome_artigo(nome_artigo):
+    with open(LEGENDA_FILE, "w") as f:
+        f.write(nome_artigo)
 
-    print("Arquivo atualizado no GitHub com sucesso!")
+# Função para verificar se o novo artigo é diferente do último
+def verificar_artigo_duplicado(nome_artigo):
+    if not os.path.exists(LEGENDA_FILE):
+        return False  # Se legenda.txt não existe, o artigo não é duplicado
+    with open(LEGENDA_FILE, "r") as f:
+        ultimo_artigo = f.read().strip()
+    return nome_artigo == ultimo_artigo
 
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
@@ -75,6 +82,14 @@ def extrair_autores(url_artigo):
 def publicar_artigo(titulo, autores, url_artigo):
     g = Github(GITHUB_TOKEN)
     repo = g.get_repo(REPO_NAME)
+    
+    # Verifica se o artigo já foi publicado anteriormente
+    if verificar_artigo_duplicado(titulo):
+        print("O artigo já foi publicado anteriormente. Encerrando o programa.")
+        return
+
+    # Salva o nome do artigo em legenda.txt
+    salvar_nome_artigo(titulo)
     
     # Busca o conteúdo atual do arquivo index.html
     conteudo_atual, sha = buscar_conteudo_arquivo(repo, FILE_PATH)
