@@ -2,19 +2,13 @@ import requests
 from bs4 import BeautifulSoup
 import os
 from github import Github
-import google.generativeai as genai
 import base64
-
 
 # Chamando variáveis secretas
 GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
 GITHUB_TOKEN = os.environ["TOKEN_GITHUB"]
 REPO_NAME = "espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io"
 FILE_PATH = "conteudo/index.html"
-
-# Configuração da chave da API GenAI
-genai.configure(api_key=GOOGLE_API_KEY)
-
 
 # Função para descriptografar o conteúdo do arquivo
 def descriptografar_conteudo(conteudo_criptografado):
@@ -48,8 +42,6 @@ def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
 
     print("Arquivo atualizado no GitHub com sucesso!")
 
-
-
 # Função para extrair informações do artigo do PubMed
 def extrair_artigo_pubmed(termo_pesquisa):
     url = 'https://pubmed.ncbi.nlm.nih.gov/'
@@ -59,14 +51,29 @@ def extrair_artigo_pubmed(termo_pesquisa):
 
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
-        link_ultimo_artigo = soup.find('a', class_='docsum-title')['href']
-        return 'https://pubmed.ncbi.nlm.nih.gov' + link_ultimo_artigo
+        artigo = soup.find('a', class_='docsum-title')
+        if artigo:
+            link_ultimo_artigo = artigo['href']
+            titulo = artigo.text.strip()
+            url_artigo = 'https://pubmed.ncbi.nlm.nih.gov' + link_ultimo_artigo
+            return titulo, url_artigo
     else:
         print(f'Erro na pesquisa PubMed: {response.status_code}')
+        return None, None
+
+# Função para extrair autores do artigo
+def extrair_autores(url_artigo):
+    response_artigo = requests.get(url_artigo)
+    if response_artigo.status_code == 200:
+        soup_artigo = BeautifulSoup(response_artigo.text, 'html.parser')
+        autores = soup_artigo.find('div', class_='authors-list').text.strip()
+        return autores
+    else:
+        print(f'Erro ao acessar o artigo: {response_artigo.status_code}')
         return None
 
 # Função para publicar o artigo no site
-def publicar_artigo(titulo, abstract, url_artigo):
+def publicar_artigo(titulo, autores, url_artigo):
     g = Github(GITHUB_TOKEN)
     repo = g.get_repo(REPO_NAME)
     
@@ -82,6 +89,19 @@ def publicar_artigo(titulo, abstract, url_artigo):
         print("Erro: não foi possível encontrar a seção principal no arquivo HTML.")
         return
 
+    # Localiza a seção "ARTIGOS E TESES"
+    artigos_teses = main_content.find("strong", string="ARTIGOS E TESES:")
+
+    # Verifica se a seção "ARTIGOS PUBMED" já existe
+    artigos_pubmed_section = main_content.find("strong", string="ARTIGOS PUBMED:")
+    if not artigos_pubmed_section:
+        # Cria o subtítulo "ARTIGOS PUBMED" antes da seção "ARTIGOS E TESES"
+        artigos_pubmed_section = soup.new_tag("p")
+        strong_tag = soup.new_tag("strong")
+        strong_tag.string = "ARTIGOS PUBMED:"
+        artigos_pubmed_section.append(strong_tag)
+        main_content.insert(main_content.contents.index(artigos_teses.parent), artigos_pubmed_section)
+
     # Cria um novo elemento de artigo
     new_article = soup.new_tag("article")
     new_article["id"] = "post-new"
@@ -89,20 +109,23 @@ def publicar_artigo(titulo, abstract, url_artigo):
 
     # Cria o cabeçalho do artigo
     header = soup.new_tag("header", class_="entry-header")
-    title_tag = soup.new_tag("h1", class_="entry-title")
+    title_tag = soup.new_tag("h2", class_="entry-title")
     title_tag.string = titulo
     header.append(title_tag)
     new_article.append(header)
 
     # Cria o conteúdo do artigo
     content = soup.new_tag("div", class_="entry-content")
-    abstract_tag = soup.new_tag("p")
-    abstract_tag.string = abstract
-    content.append(abstract_tag)
+    autores_tag = soup.new_tag("p")
+    autores_tag.string = "Autores: " + autores
+    link_tag = soup.new_tag("a", href=url_artigo)
+    link_tag.string = "Leia mais"
+    content.append(autores_tag)
+    content.append(link_tag)
     new_article.append(content)
 
-    # Insere o novo artigo no início da lista de artigos
-    main_content.insert(0, new_article)
+    # Insere o novo artigo na seção "ARTIGOS PUBMED"
+    artigos_pubmed_section.insert_after(new_article)
 
     # Atualiza o conteúdo do arquivo
     conteudo_atualizado = str(soup)
@@ -112,45 +135,18 @@ def publicar_artigo(titulo, abstract, url_artigo):
 
     print("Artigo publicado no site com sucesso!")
 
-# Função para extrair informações do artigo
-def extrair_informacoes_artigo(url_artigo):
-    response_artigo = requests.get(url_artigo)
-    if response_artigo.status_code == 200:
-        soup_artigo = BeautifulSoup(response_artigo.text, 'html.parser')
-        titulo = soup_artigo.find('h1', class_='heading-title').text.strip()
-        abstract = soup_artigo.find('div', class_='abstract-content').text.strip()
-        return titulo, abstract
-    else:
-        print(f'Erro ao acessar o artigo: {response_artigo.status_code}')
-        return None, None
-
-# Função para gerar conteúdo traduzido usando o modelo GenAI
-def gerar_traducao(prompt):
-    model = genai.GenerativeModel('gemini-pro')
-    response = model.generate_content(prompt)
-    if response.candidates and len(response.candidates) > 0:
-        if response.candidates[0].content.parts and len(response.candidates[0].content.parts) > 0:
-            return response.candidates[0].content.parts[0].text
-        else:
-            print("Nenhuma parte de conteúdo encontrada na resposta.")
-    else:
-        print(f"Nenhum candidato válido encontrado, tentando novamente...")
-
 # Termo de pesquisa para o PubMed
 termo_pesquisa = '(spirituality OR religiosity) AND (medical practice OR medical education)'
 
 # Pesquisar no PubMed
-url_artigo_pubmed = extrair_artigo_pubmed(termo_pesquisa)
+titulo, url_artigo_pubmed = extrair_artigo_pubmed(termo_pesquisa)
 
 # Extrair informações do artigo
-if url_artigo_pubmed:
-    titulo, abstract = extrair_informacoes_artigo(url_artigo_pubmed)
-    if titulo and abstract:
-        # Traduzir título e abstract
-        titulo_traduzido = gerar_traducao(titulo)
-        abstract_traduzido = gerar_traducao(abstract)
+if titulo and url_artigo_pubmed:
+    autores = extrair_autores(url_artigo_pubmed)
+    if autores:
         # Publica o artigo no site
-        publicar_artigo(titulo_traduzido, abstract_traduzido, url_artigo_pubmed)
+        publicar_artigo(titulo, autores, url_artigo_pubmed)
     else:
         print("Não foi possível extrair informações do artigo.")
 else:
