@@ -44,6 +44,7 @@ jobs:
           TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
         run: |
           python pubmed.py
+        continue-on-error: true
 
       - name: Configurar Git
         run: |
