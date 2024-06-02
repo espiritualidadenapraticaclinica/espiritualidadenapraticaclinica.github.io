@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import os
 from github import Github
 import base64
+import sys
 
 # Chamando variáveis secretas
 GITHUB_TOKEN = os.environ["TOKEN_GITHUB"]
@@ -85,6 +86,7 @@ def atualizar_arquivo_github(repo, file_path, conteudo, sha, mensagem_commit):
 
     print("Arquivo atualizado no GitHub com sucesso!")
 
+
 # Função para publicar o artigo no site
 def publicar_artigo(titulo, autores, url_artigo):
     g = Github(GITHUB_TOKEN)
@@ -93,7 +95,7 @@ def publicar_artigo(titulo, autores, url_artigo):
     # Verifica se o artigo já foi publicado anteriormente
     if verificar_artigo_duplicado(titulo):
         print("O artigo já foi publicado anteriormente. Encerrando o programa.")
-        return
+        sys.exit(1)  # Saída com código 1 para indicar que não há novos artigos
 
     # Salva o nome do artigo em legenda.txt
     salvar_nome_artigo(titulo)
@@ -108,13 +110,13 @@ def publicar_artigo(titulo, autores, url_artigo):
     main_content = soup.find("main", id="main")
     if not main_content:
         print("Erro: não foi possível encontrar a seção principal no arquivo HTML.")
-        return
+        sys.exit(1)  # Saída com código 1 para indicar erro
 
     # Localiza a seção "ARTIGOS E TESES"
     artigos_teses = main_content.find("strong", string="ARTIGOS E TESES:")
     if not artigos_teses:
         print("Erro: não foi possível encontrar a seção 'ARTIGOS E TESES' no arquivo HTML.")
-        return
+        sys.exit(1)  # Saída com código 1 para indicar erro
 
     # Verifica se a seção "ARTIGOS PUBMED" já existe
     artigos_pubmed_section = main_content.find("strong", string="ARTIGOS PUBMED:")
@@ -158,6 +160,27 @@ def publicar_artigo(titulo, autores, url_artigo):
     atualizar_arquivo_github(repo, FILE_PATH, conteudo_atualizado, sha, "Adicionando novo artigo")
 
     print("Artigo publicado no site com sucesso!")
+    sys.exit(0)  # Saída com código 0 para indicar sucesso
+
+# Termo de pesquisa para o PubMed
+termo_pesquisa = '(spirituality OR religiosity) AND (medical practice OR medical education)'
+
+# Pesquisar no PubMed
+titulo, url_artigo_pubmed = extrair_artigo_pubmed(termo_pesquisa)
+
+# Extrair informações do artigo
+if titulo and url_artigo_pubmed:
+    autores = extrair_autores(url_artigo_pubmed)
+    if autores:
+        # Publica o artigo no site
+        publicar_artigo(titulo, autores, url_artigo_pubmed)
+    else:
+        print("Não foi possível extrair informações do artigo.")
+        sys.exit(1)  # Saída com código 1 para indicar erro
+else:
+    print("Nenhum artigo encontrado para os termos de pesquisa fornecidos.")
+    sys.exit(1)  # Saída com código 1 para indicar erro
+
 
 # Termo de pesquisa para o PubMed
 termo_pesquisa = '(spirituality OR religiosity) AND (medical practice OR medical education)'
