@@ -1,3 +1,3 @@
 User-agent: *
-Disallow: /wp-admin/
-Allow: /wp-admin/admin-ajax.php
+Allow: /
+Sitemap: https://espiritualidadenapraticaclinica.github.io/sitemap.xml
