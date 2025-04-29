@@ -12,21 +12,18 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v3  # Atualizado para v3
+        uses: actions/checkout@v3
         with:
           token: ${{ secrets.TOKEN_GITHUB }}
           persist-credentials: false
 
-      - name: Manter o fluxo de trabalho ativo
-        uses: entepotenz/keep-github-actions-alive-min-dependencies@v1
-
       - name: Configurar o ambiente Python
-        uses: actions/setup-python@v4  # Atualizado para v4
+        uses: actions/setup-python@v4
         with:
           python-version: 3.x
 
       - name: Cache de pacotes Python
-        uses: actions/cache@v3  # Atualizado para v3
+        uses: actions/cache@v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
@@ -39,7 +36,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Executar script Python para encontrar artigo e postar no site
+      - name: Executar script Python
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           TOKEN_GITHUB: ${{ secrets.TOKEN_GITHUB }}
@@ -47,32 +44,16 @@ jobs:
           python pubmed.py
         continue-on-error: true
 
-      - name: Configurar Git
+      - name: Verificar mudanças
+        id: changes
+        run: |
+          git add legenda.txt conteudo/index.html
+          echo "changes=$(git status --porcelain | wc -l)" >> $GITHUB_OUTPUT
+
+      - name: Commitar e push (se houver mudanças)
+        if: steps.changes.outputs.changes != '0'
         run: |
           git config --global user.email "github-actions@example.com"
           git config --global user.name "GitHub Actions"
-
-      - name: Stash quaisquer mudanças locais
-        run: |
-          git stash
-
-      - name: Atualizar repositório local com remoto
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-        run: |
-          git remote set-url origin https://x-access-token:${{ secrets.TOKEN_GITHUB }}@github.com/espiritualidadenapraticaclinica/espiritualidadenapraticaclinica.github.io.git
-          git fetch origin
-          git pull origin main --rebase
-
-      - name: Adicionar e commitar mudanças
-        run: |
-          git stash pop
-          git add legenda.txt
-          git add conteudo/index.html
-          git commit -m "Atualizar arquivo de legenda e index [skip ci]" || echo "No changes to commit"
-
-      - name: Push mudanças
-        env:
-          GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
-        run: |
+          git commit -m "Atualizar conteúdo [skip ci]"
           git push origin main
