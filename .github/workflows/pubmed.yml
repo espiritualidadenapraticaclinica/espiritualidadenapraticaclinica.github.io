@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3  # Atualizado para v3
         with:
           token: ${{ secrets.TOKEN_GITHUB }}
           persist-credentials: false
@@ -20,12 +20,12 @@ jobs:
         uses: entepotenz/keep-github-actions-alive-min-dependencies@v1
 
       - name: Configurar o ambiente Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4  # Atualizado para v4
         with:
           python-version: 3.x
 
       - name: Cache de pacotes Python
-        uses: actions/cache@v2
+        uses: actions/cache@v3  # Atualizado para v3
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
